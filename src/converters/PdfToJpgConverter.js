@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
-import JSZip from 'jszip'; // For creating zip files
-import { saveAs } from 'file-saver'; // For downloading zip files
+import JSZip from 'jszip'; 
+import { saveAs } from 'file-saver'; 
 import { Button, CircularProgress, Typography } from '@mui/material';
 
 const PdfToJpgConverter = () => {
-  const [pdfFile, setPdfFile] = useState(null); // Store the selected PDF file
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null); // PDF file preview URL
-  const [images, setImages] = useState([]); // Converted JPG images
-  const [loading, setLoading] = useState(false); // Loading state for conversion
+  const [pdfFile, setPdfFile] = useState(null); 
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null); 
+  const [images, setImages] = useState([]); 
+  const [loading, setLoading] = useState(false); 
   const [fileName, setFileName] = useState('No file chosen');
-  const [zipBlob, setZipBlob] = useState(null); // Store the zip blob
+  const [zipBlob, setZipBlob] = useState(null);  
 
-  // Handle file input change
+ 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
-      setPdfFile(file); // Set the PDF file
-      const pdfUrl = URL.createObjectURL(file); // Create a preview URL
+      setPdfFile(file);  
+      const pdfUrl = URL.createObjectURL(file); 
       setPdfPreviewUrl(pdfUrl);
     }
   };
 
-  // Convert PDF to images
   const convertPdfToImages = async () => {
     if (!pdfFile) return;
 
@@ -63,7 +62,6 @@ const PdfToJpgConverter = () => {
     setLoading(false);
   };
 
-  // Download ZIP file
   const downloadZip = () => {
     if (zipBlob) {
       saveAs(zipBlob, `${fileName.replace('.pdf', '')}-images.zip`);
@@ -78,7 +76,6 @@ const PdfToJpgConverter = () => {
         <Typography variant="body2">{fileName}</Typography>
       </label>
 
-      {/* Step 1: Preview PDF before conversion */}
       {pdfPreviewUrl && (
         <div>
           <Typography variant="h6">PDF Preview:</Typography>
@@ -95,10 +92,9 @@ const PdfToJpgConverter = () => {
         </div>
       )}
 
-      {/* Step 2: Loading Indicator */}
+    
       {loading && <CircularProgress />}
 
-      {/* Step 3: Preview Converted JPG Images */}
       {!loading && images.length > 0 && (
         <div>
           <Typography variant="h6" style={{ marginTop: '20px' }}>JPG Preview:</Typography>
