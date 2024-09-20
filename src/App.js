@@ -1,16 +1,51 @@
-import React from 'react';
-import PdfToJpgConverter from './converters/PdfToJpgConverter';
+import { Container, Box } from '@mui/material';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Sidebar from './layout/Sidebar';
+import PdfToJpgConverter from './converters/PdfToJpg';
+import ImageToWebPConverter from './converters/ImageToWebp';
+
+const appBarHeight = 64;
 
 function App() {
   return (
-    <div className="App">
-      <h1>PDF to JPG Converter</h1>
-      <PdfToJpgConverter />
-    </div>
+    <Router>
+      <Box display="flex" minHeight="100vh" flexDirection="column">
+
+        <Box component="header">
+
+        </Box>
+
+
+        <Box display="flex" flexGrow={1}>
+          <Sidebar />
+
+
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              padding: 2,
+              overflow: 'hidden',
+              backgroundColor: '#f0f0f0',
+              marginTop: `${appBarHeight}px`,
+              width: 'calc(100% - 240px)',
+            }}
+          >
+            <Container maxWidth="lg">
+              <Routes>
+                <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
+                <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
+              </Routes>
+            </Container>
+          </Box>
+        </Box>
+      </Box>
+    </Router>
   );
 }
 
 export default App;
+
 
 // import logo from './logo.svg';
 // import './App.css';

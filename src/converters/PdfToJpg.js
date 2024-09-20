@@ -69,9 +69,10 @@ const PdfToJpgConverter = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px', position: 'relative', width: '80%', margin: 'auto' }}>
+    <div style={{ textAlign: 'center', position: 'relative', width: '80%', margin: 'auto' }}>
+      <h1>PDF to JPG Converter</h1>
       <input type="file" accept="application/pdf" style={{ display: 'none' }} id="fileInput" onChange={handleFileChange} />
-      <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', marginBottom: '20px' }}>
+      <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', marginBottom: '20px', marginTop: '80px' }}>
         <Button variant="contained" component="span">Select PDF</Button>
         <Typography variant="body2">{fileName}</Typography>
       </label>
@@ -86,9 +87,12 @@ const PdfToJpgConverter = () => {
             height="500px"
             style={{ marginBottom: '20px' }}
           />
-          <Button variant="contained" color="primary" onClick={convertPdfToImages}>
-            Convert to JPG
-          </Button>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <Button variant="contained" color="primary" onClick={convertPdfToImages}>
+              Convert to JPG
+            </Button>
+          </div>
+
         </div>
       )}
 
