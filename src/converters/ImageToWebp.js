@@ -64,7 +64,7 @@ const ImageToWebPConverter = () => {
       zip.file(image.name.replace(/\.(jpg|jpeg|png)$/i, '.webp'), blob);
     }
     
-    // Generate the ZIP file
+  
     zip.generateAsync({ type: 'blob' }).then((content) => {
       saveAs(content, 'images.zip');
     });

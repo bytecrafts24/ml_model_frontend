@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './layout/Sidebar';
 import PdfToJpgConverter from './converters/PdfToJpg';
 import ImageToWebPConverter from './converters/ImageToWebp';
+import MovieRecommender from './MovieRecommender';
 
 const appBarHeight = 64;
 
@@ -28,13 +29,15 @@ function App() {
               overflow: 'hidden',
               backgroundColor: '#f0f0f0',
               marginTop: `${appBarHeight}px`,
-              width: 'calc(100% - 240px)',
+              width: { xs: '100%', sm: 'calc(100% - 240px)' },
+
             }}
           >
             <Container maxWidth="lg">
               <Routes>
                 <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
                 <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
+                <Route path="/movie-recommender" element={<MovieRecommender/> }/>
               </Routes>
             </Container>
           </Box>
