@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import JSZip from 'jszip'; 
 import { saveAs } from 'file-saver'; 

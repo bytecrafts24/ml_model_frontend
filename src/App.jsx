@@ -4,6 +4,7 @@ import Sidebar from './layout/Sidebar';
 import PdfToJpgConverter from './converters/PdfToJpg';
 import ImageToWebPConverter from './converters/ImageToWebp';
 import MovieRecommender from './MovieRecommender';
+import SudokuSolverComponent from './sudoku';
 
 const appBarHeight = 64;
 
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
                 <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
                 <Route path="/movie-recommender" element={<MovieRecommender/> }/>
+                <Route path="/sudoku-solver" element={<SudokuSolverComponent/> }/>
               </Routes>
             </Container>
           </Box>

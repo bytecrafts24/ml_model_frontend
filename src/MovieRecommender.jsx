@@ -120,3 +120,4 @@ const MovieRecommender = () => {
 };
 
 export default MovieRecommender;
+
