@@ -23,6 +23,12 @@ export const drawerItems = [
         icon: <ImageIcon />,
         path: "/image-to-webp",
       },
+      {
+        id: 1.3,
+        label: "Pgn to Csv",
+        icon: <ImageIcon />,
+        path: "/pgn-to-csv",
+      },
     ],
   },
   {
@@ -37,4 +43,5 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/sudoku-solver",
   },
+  
 ];

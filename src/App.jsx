@@ -5,6 +5,7 @@ import PdfToJpgConverter from './converters/PdfToJpg';
 import ImageToWebPConverter from './converters/ImageToWebp';
 import MovieRecommender from './MovieRecommender';
 import SudokuSolverComponent from './sudoku';
+import PgnToCsvConverter from './converters/PgnToCsv';
 
 const appBarHeight = 64;
 
@@ -38,6 +39,7 @@ function App() {
               <Routes>
                 <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
                 <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
+                <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
                 <Route path="/movie-recommender" element={<MovieRecommender/> }/>
                 <Route path="/sudoku-solver" element={<SudokuSolverComponent/> }/>
               </Routes>

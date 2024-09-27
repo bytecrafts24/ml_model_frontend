@@ -6,6 +6,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { drawerItems } from './drawerItems'
 import SidebarItem from './SidebarItem'
+import GoogleLoginButton from './loginComponent';
 
 const drawerWidth = 240;
 const miniDrawerWidth = 70;
@@ -43,9 +44,16 @@ export default function Sidebar() {
               <MenuIcon />
             </IconButton>
           </Box>
-          <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
+          {/* <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
             Login
-          </Button>
+          </Button> */}
+          <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexGrow: 0 }}>
+            <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
+              Login
+            </Button>
+            <GoogleLoginButton />
+          </Box>
+
         </Toolbar>
       </AppBar>
 
