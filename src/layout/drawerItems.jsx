@@ -33,12 +33,26 @@ export const drawerItems = [
   },
   {
     id: 2,
+    label: "Merger",
+    icon: <TransformIcon />,
+    children: [
+      {
+        id: 2.1,
+        label: "Pgn",
+        icon: <PictureAsPdfIcon />,
+        path: "/pgn",
+      },
+
+    ],
+  },
+  {
+    id: 3,
     label: "IMDB Recommender",
     icon: <MovieIcon />,
     path: "/movie-recommender",
   },
   {
-    id: 3,
+    id: 4,
     label: "Sudoku Solver",
     icon: <GridOnIcon />,
     path: "/sudoku-solver",
