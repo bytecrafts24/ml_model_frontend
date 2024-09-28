@@ -20,7 +20,7 @@ const PgnMerger = () => {
 
     Promise.all(readers).then(contents => {
       setPgnFiles(contents);
-      setMergedPgn(contents.join('\n')); // Join the contents of all files
+      setMergedPgn(contents.join('\n'));
     });
   };
 

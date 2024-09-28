@@ -1,22 +1,34 @@
 import React, { useState } from 'react';
 import {
-  AppBar, Toolbar, IconButton,Typography, Button, Drawer, List, Box, Divider
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+  Drawer,
+  List,
+  Box,
+  Divider,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { drawerItems } from './drawerItems'
-import SidebarItem from './SidebarItem'
+import { drawerItems } from './drawerItems';
+import SidebarItem from './SidebarItem';
 import GoogleLoginButton from './loginComponent';
 
 const drawerWidth = 240;
 const miniDrawerWidth = 70;
+const mobileDrawerWidth = 60;
 
 export default function Sidebar() {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [openSections, setOpenSections] = useState({});
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
+    setDrawerOpen((prev) => !prev); 
   };
 
   const handleToggle = (id) => {
@@ -24,6 +36,13 @@ export default function Sidebar() {
       ...prevOpen,
       [id]: !prevOpen[id],
     }));
+  };
+
+  const handleSelectItem = () => {
+
+    if (isMobile) {
+      setDrawerOpen(false);
+    }
   };
 
   return (
@@ -44,31 +63,29 @@ export default function Sidebar() {
               <MenuIcon />
             </IconButton>
           </Box>
-          {/* <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
-            Login
-          </Button> */}
-          <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexGrow: 0 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexGrow: 0 }}>
             <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
               Login
             </Button>
             <GoogleLoginButton />
           </Box>
-
         </Toolbar>
       </AppBar>
 
       <Drawer
-        variant="permanent"
+        variant={isMobile ? 'temporary' : 'permanent'} 
         anchor="left"
         open={drawerOpen}
+        onClose={toggleDrawer}
         sx={{
-          width: drawerOpen ? drawerWidth : miniDrawerWidth,
+          width: drawerOpen ? (isMobile ? mobileDrawerWidth : drawerWidth) : miniDrawerWidth,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerOpen ? drawerWidth : miniDrawerWidth,
+            width: drawerOpen ? (isMobile ? mobileDrawerWidth : drawerWidth) : miniDrawerWidth,
             transition: 'width 0.3s',
             overflowX: 'hidden',
             marginTop: '64px',
+            
           },
         }}
       >
@@ -81,6 +98,7 @@ export default function Sidebar() {
                 drawerOpen={drawerOpen}
                 isOpen={openSections[item.id]}
                 handleToggle={handleToggle}
+                handleSelectItem={handleSelectItem}
               />
             ))}
           </List>
@@ -91,36 +109,33 @@ export default function Sidebar() {
   );
 }
 
+
 // import React, { useState } from 'react';
 // import {
-//   AppBar, Toolbar, IconButton, Button, Drawer, List, ListItem, ListItemText,
-//   Typography, Box, Collapse, Divider
+//   AppBar, Toolbar, IconButton,Typography, Button, Drawer, List, Box, Divider
 // } from '@mui/material';
 // import MenuIcon from '@mui/icons-material/Menu';
 // import AccountCircle from '@mui/icons-material/AccountCircle';
-// import TransformIcon from '@mui/icons-material/Transform';
-// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-// import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-// import ImageIcon from '@mui/icons-material/Image';
-// import MovieIcon from '@mui/icons-material/Movie'
-// import GridOnIcon from '@mui/icons-material/GridOn';
-
-// import { Link } from 'react-router-dom';
+// import { drawerItems } from './drawerItems'
+// import SidebarItem from './SidebarItem'
+// import GoogleLoginButton from './loginComponent';
 
 // const drawerWidth = 240;
 // const miniDrawerWidth = 70;
 
 // export default function Sidebar() {
 //   const [drawerOpen, setDrawerOpen] = useState(true);
-//   const [openConverter, setOpenConverter] = useState(true);
-
-//   const handleConverterToggle = () => {
-//     setOpenConverter(!openConverter);
-//   };
+//   const [openSections, setOpenSections] = useState({});
 
 //   const toggleDrawer = () => {
 //     setDrawerOpen(!drawerOpen);
+//   };
+
+//   const handleToggle = (id) => {
+//     setOpenSections((prevOpen) => ({
+//       ...prevOpen,
+//       [id]: !prevOpen[id],
+//     }));
 //   };
 
 //   return (
@@ -141,9 +156,16 @@ export default function Sidebar() {
 //               <MenuIcon />
 //             </IconButton>
 //           </Box>
-//           <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
+//           {/* <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
 //             Login
-//           </Button>
+//           </Button> */}
+//           <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexGrow: 0 }}>
+//             <Button color="inherit" startIcon={<AccountCircle />} style={{ color: '#000000' }}>
+//               Login
+//             </Button>
+//             <GoogleLoginButton />
+//           </Box>
+
 //         </Toolbar>
 //       </AppBar>
 
@@ -164,44 +186,20 @@ export default function Sidebar() {
 //       >
 //         <Box sx={{ paddingTop: 2, width: '100%' }}>
 //           <List>
-//             <ListItem button onClick={handleConverterToggle} sx={{ justifyContent: 'space-between', padding: '10px 16px' }}>
-//               <TransformIcon />
-//               {drawerOpen && <ListItemText primary="Converter" />}
-//               {openConverter ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-//             </ListItem>
-
-//             <Collapse in={openConverter} timeout="auto" unmountOnExit>
-//               <List component="div" disablePadding>
-//                 <ListItem button component={Link} to="/pdf-to-jpg">
-//                   <PictureAsPdfIcon sx={{ mr: drawerOpen ? 1 : 0 }} />
-//                   {drawerOpen && <ListItemText primary="PDF to JPG" />}
-//                 </ListItem>
-
-//                 <ListItem button component={Link} to="/image-to-webp">
-//                   <ImageIcon sx={{ mr: drawerOpen ? 1 : 0 }} />
-//                   {drawerOpen && <ListItemText primary="Image to WebP" />}
-//                 </ListItem>
-//               </List>
-//             </Collapse>
+//             {drawerItems.map((item) => (
+//               <SidebarItem
+//                 key={item.id}
+//                 item={item}
+//                 drawerOpen={drawerOpen}
+//                 isOpen={openSections[item.id]}
+//                 handleToggle={handleToggle}
+//               />
+//             ))}
 //           </List>
 //           <Divider />
-//           <List>
-//             <ListItem button component={Link} to="/movie-recommender" sx={{ justifyContent: 'space-between', padding: '10px 16px' }}>
-//               <MovieIcon sx={{ mr: drawerOpen ? 1 : 0 }} />
-//               {drawerOpen && <ListItemText primary="IMDB Recommender" />}
-//             </ListItem>
-//           </List>
-
-//           <List>
-//             <ListItem button component={Link} to="/sudoku-solver" sx={{ justifyContent: 'space-between', padding: '10px 16px' }}>
-//               <GridOnIcon sx={{ mr: drawerOpen ? 1 : 0 }} />
-//               {drawerOpen && <ListItemText primary="Sudoku Solver" />}
-//             </ListItem>
-//           </List>
 //         </Box>
 //       </Drawer>
 //     </Box>
 //   );
 // }
-
 
