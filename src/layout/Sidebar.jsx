@@ -216,7 +216,7 @@ export default function Sidebar() {
             width: drawerOpen ? (isMobile ? mobileDrawerWidth : drawerWidth) : miniDrawerWidth,
             transition: 'width 0.3s',
             overflowX: 'hidden',
-            marginTop: '64px',
+            marginTop:isMobile? '55px': '64px',
           },
         }}
       >
