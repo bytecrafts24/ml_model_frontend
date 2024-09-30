@@ -114,21 +114,76 @@
 // };
 
 // export default Navbar;
+// import React, { useState } from 'react';
+// import { Link } from 'react-router-dom';
+// import { AppBar, Toolbar, Box, Button, Typography, IconButton } from '@mui/material';
+// import MenuIcon from '@mui/icons-material/Menu';
+// import AccountCircle from '@mui/icons-material/AccountCircle';
+// import LoginModal from './loginModal';
+
+
+// const Navbar = () => {
+//   const [drawerOpen, setDrawerOpen] = useState(false); // Initially drawer should be closed
+//   const [modalOpen, setModalOpen] = useState(false); // State for controlling modal visibility
+  
+//   const toggleDrawer = () => {
+//     setDrawerOpen(!drawerOpen);
+//   };
+
+//   const handleLoginClick = () => {
+//     setModalOpen(true); // Open the modal when Login button is clicked
+//   };
+
+//   const handleCloseModal = () => {
+//     setModalOpen(false); // Close the modal
+//   };
+
+//   return (
+//     <>
+//       <AppBar position="fixed" sx={{ zIndex: 1300, backgroundColor: '#ffffff' }}>
+//         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+//           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+//             <Typography variant="h6" noWrap style={{ color: '#000000' }}>
+//               Bytecrafts
+//             </Typography>
+//             <IconButton
+//               edge="start"
+//               color="inherit"
+//               aria-label="menu"
+//               onClick={toggleDrawer}
+//               sx={{ ml: 2 }}
+//             >
+//               <MenuIcon />
+//             </IconButton>
+//           </Box>
+
+//           <Box style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexGrow: 0 }}>
+//             <Button 
+//               color="inherit" 
+//               startIcon={<AccountCircle />} 
+//               style={{ color: '#000000' }}
+//               onClick={handleLoginClick}  // Open modal on click
+//             >
+//               Login
+//             </Button>
+//           </Box>
+//         </Toolbar>
+//       </AppBar>
+
+//       <LoginModal open={modalOpen} handleClose={handleCloseModal} />  {/* Render LoginModal */}
+//     </>
+//   );
+// };
+
+// export default Navbar;
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Box, Button, Typography, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LoginModal from './loginModal';
 
-
-const Navbar = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false); // Initially drawer should be closed
+const Navbar = ({ toggleDrawer }) => { // Accept toggleDrawer prop from parent
   const [modalOpen, setModalOpen] = useState(false); // State for controlling modal visibility
-  
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
 
   const handleLoginClick = () => {
     setModalOpen(true); // Open the modal when Login button is clicked
@@ -150,7 +205,7 @@ const Navbar = () => {
               edge="start"
               color="inherit"
               aria-label="menu"
-              onClick={toggleDrawer}
+              onClick={toggleDrawer} // Call the passed toggleDrawer function
               sx={{ ml: 2 }}
             >
               <MenuIcon />
@@ -170,7 +225,7 @@ const Navbar = () => {
         </Toolbar>
       </AppBar>
 
-      <LoginModal open={modalOpen} handleClose={handleCloseModal} />  {/* Render LoginModal */}
+      <LoginModal open={modalOpen} handleClose={handleCloseModal} />  
     </>
   );
 };
