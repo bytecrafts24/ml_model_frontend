@@ -6,7 +6,6 @@ import GridOnIcon from '@mui/icons-material/GridOn';
 import TransformIcon from '@mui/icons-material/Transform';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 
-
 export const drawerItems = [
   {
     id: 1,
@@ -27,7 +26,7 @@ export const drawerItems = [
       },
       {
         id: 1.3,
-        label: "Pgn to Csv",
+        label: "PGN to CSV",
         icon: <ImageIcon />,
         path: "/pgn-to-csv",
       },
@@ -40,11 +39,10 @@ export const drawerItems = [
     children: [
       {
         id: 2.1,
-        label: "Pgn",
+        label: "PGN",
         icon: <PictureAsPdfIcon />,
         path: "/pgn",
       },
-
     ],
   },
   {
@@ -59,7 +57,6 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/sudoku-solver",
   },
- 
   {
     id: 5,
     label: "QR Code",
@@ -67,22 +64,36 @@ export const drawerItems = [
     children: [
       {
         id: 5.1,
-        label: "Qr Generator",
+        label: "QR Generator",
         icon: <QrCodeIcon />,
         path: "/qr-generator",
       },
       {
         id: 5.2,
-        label: "Qr Decoder",
+        label: "QR Decoder",
         icon: <QrCodeIcon />,
         path: "/qr-decoder",
-      },  
-],
+      },
+    ],
   },
   {
     id: 6,
-    label: "bas64 converter",
-    icon: <GridOnIcon />,
-    path: "/image-base64",
+    label: "Base64 Converter",
+    icon: <TransformIcon />,
+    children: [
+      {
+        id: 6.1,
+        label: "Base64 Converter",
+        icon: <GridOnIcon />,
+        path: "/image-base64",
+      },
+      {
+        id: 6.2,
+        label: "Base64 Decoder",
+        icon: <GridOnIcon />,
+        path: "/image-base64-decoder",
+      },
+    ],
   },
-]
+];
+
