@@ -4,9 +4,13 @@ import Sidebar from './layout/Sidebar';
 import PdfToJpgConverter from './converters/PdfToJpg';
 import ImageToWebPConverter from './converters/ImageToWebp';
 import MovieRecommender from './MovieRecommender';
-import SudokuSolverComponent from './sudoku';
+// import SudokuSolverComponent from './sudoku';
 import PgnToCsvConverter from './converters/PgnToCsv';
 import PgnMerger from './merger/Pgn'
+import SudokuExtractorandSolver from './sudoku'
+import QrCodeDecoder from './QrcodeGenerator/qrDecoder'
+import QrCodeGenerator from './QrcodeGenerator/qrGenerator';
+import ImageToBase64Converter from './imageToBase64';
 
 const appBarHeight = 64;
 
@@ -19,10 +23,8 @@ function App() {
 
         </Box>
 
-
         <Box display="flex" flexGrow={1}>
           <Sidebar />
-
 
           <Box
             component="main"
@@ -43,7 +45,10 @@ function App() {
                 <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
                 <Route path="/pgn" element={<PgnMerger/>} />
                 <Route path="/movie-recommender" element={<MovieRecommender/> }/>
-                <Route path="/sudoku-solver" element={<SudokuSolverComponent/> }/>
+                <Route path="/sudoku-solver" element={<SudokuExtractorandSolver/> }/>
+                <Route path="/qr-generator" element={<QrCodeGenerator /> }/>
+                <Route path="/qr-decoder" element={<QrCodeDecoder /> }/>
+                <Route path="/image-base64" element={<ImageToBase64Converter/>}/>
               </Routes>
             </Container>
           </Box>

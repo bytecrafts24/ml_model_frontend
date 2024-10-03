@@ -4,6 +4,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import MovieIcon from '@mui/icons-material/Movie';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import TransformIcon from '@mui/icons-material/Transform';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+
 
 export const drawerItems = [
   {
@@ -57,5 +59,30 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/sudoku-solver",
   },
-  
-];
+ 
+  {
+    id: 5,
+    label: "QR Code",
+    icon: <TransformIcon />,
+    children: [
+      {
+        id: 5.1,
+        label: "Qr Generator",
+        icon: <QrCodeIcon />,
+        path: "/qr-generator",
+      },
+      {
+        id: 5.2,
+        label: "Qr Decoder",
+        icon: <QrCodeIcon />,
+        path: "/qr-decoder",
+      },  
+],
+  },
+  {
+    id: 6,
+    label: "bas64 converter",
+    icon: <GridOnIcon />,
+    path: "/image-base64",
+  },
+]

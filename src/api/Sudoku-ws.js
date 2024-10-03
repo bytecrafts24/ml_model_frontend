@@ -20,3 +20,19 @@ export const solveSudoku = (sudokuImage) => {
     },
   });
 };
+
+export const extract = (sudokuImage) => {
+  const urlPath = '/sudoku/extract';
+  const formData = new FormData();
+  formData.append('sudokuImage', sudokuImage); // Ensure this matches the backend key
+
+  return API.request({
+    method: HttpMethod.POST,
+    urlPath: urlPath,
+    body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
