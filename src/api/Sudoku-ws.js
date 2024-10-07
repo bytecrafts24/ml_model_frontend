@@ -2,37 +2,32 @@ import { HttpMethod } from '../utils/network.js';
 import { API } from '../utils/request.js';
 
 /**
- * Solve a Sudoku puzzle by uploading an image.
- * @param {File} sudokuImage 
- * @returns {Promise} 
+ * Extract Sudoku board from the uploaded image.
+ * @param {string} base64Image - The base64-encoded image.
+ * @returns {Promise} - API request promise.
  */
-export const solveSudoku = (sudokuImage) => {
-  const urlPath = '/solve-sudoku';
-  const formData = new FormData();
-  formData.append('sudokuImage', sudokuImage);
-
-  return API.request({
-    method: HttpMethod.POST,
-    urlPath: urlPath,
-    body: formData,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
-
-export const extract = (sudokuImage) => {
+export const extract = (base64Image) => {
   const urlPath = '/sudoku/extract';
-  const formData = new FormData();
-  formData.append('sudokuImage', sudokuImage); // Ensure this matches the backend key
-
   return API.request({
     method: HttpMethod.POST,
     urlPath: urlPath,
-    body: formData,
+    body: { image: base64Image },
     headers: {
-      'Content-Type': 'multipart/form-data',
+      'Content-Type': 'application/json',
     },
   });
 };
 
+/**
+ * Solve a Sudoku puzzle given a recognized board.
+ * @param {Array} recognizedBoard - The 2D array representing the Sudoku board.
+ * @returns {Promise} - API request promise.
+ */
+export const solve = (recognizedBoard) => {
+  const urlPath = '/sudoku/solve';
+  return API.request({
+    method: HttpMethod.POST,
+    urlPath: urlPath,
+    body: { recognized_board: recognizedBoard },
+  });
+};

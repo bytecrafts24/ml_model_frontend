@@ -201,20 +201,279 @@
 
 // export default SudokuSolver;
 
-import React, { useState } from 'react';
-import SudokuExtractor from './sudokuExtractor';
-import SudokuSolver from './sudokuSolver'
+// import React, { useState } from 'react';
+// import SudokuExtractor from './sudokuExtractor';
+// import SudokuSolver from './sudokuSolver'
 
-const SudokuExtractorandSolver = () => {
+// const SudokuExtractorandSolver = () => {
+//   const [recognizedBoard, setRecognizedBoard] = useState(null);
+
+//   return (
+//     <div>
+//       <h1>Sudoku Extractor & Solver</h1>
+//       <SudokuExtractor onExtract={setRecognizedBoard} />
+//       {recognizedBoard && <SudokuSolver recognizedBoard={recognizedBoard} />}
+//     </div>
+//   );
+// };
+
+// export default SudokuExtractorandSolver;
+// import React, { useState } from 'react';
+// import { extract, solveSudoku } from './api/Sudoku-ws'; 
+
+// const SudokuSolver = () => {
+//   const [image, setImage] = useState(null);
+//   const [error, setError] = useState(null);
+//   const [recognizedBoard, setRecognizedBoard] = useState(null);
+//   const [solvedBoard, setSolvedBoard] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+
+//   const handleImageUpload = (event) => {
+//     const file = event.target.files[0]; 
+//     if (file) {
+     
+//       if (file.size > 5000000) {
+//         setError('File size exceeds the 5MB limit.');
+//         return;
+//       }
+//       if (!['image/jpeg', 'image/png'].includes(file.type)) {
+//         setError('Please upload a valid image (JPEG/PNG).');
+//         return;
+//       }
+//       setImage(file);
+//       setError(null);
+//     }
+//   };
+
+
+//   const fileToBase64 = (file) => {
+//     return new Promise((resolve, reject) => {
+//       const reader = new FileReader();
+//       reader.readAsDataURL(file);  
+//       reader.onload = () => resolve(reader.result);
+//       reader.onerror = (error) => reject(error);
+//     });
+//   };
+
+
+//   const handleSubmit = async (event) => {
+//     event.preventDefault();
+
+//     if (!image) {
+//       setError('Please upload an image.');
+//       return;
+//     }
+
+//     setError(null); // Clear any previous errors
+//     setLoading(true); // Start loading
+
+//     try {
+//       const base64Image = await fileToBase64(image); 
+ 
+//       const cleanBase64Image = base64Image.replace(/^data:image\/png;base64,/, "");
+
+//       const response = await extract(cleanBase64Image); // Call API to extract Sudoku
+
+//       if (response && response.data && response.data.success) {
+//         setRecognizedBoard(response.data.recognized_board); // Update recognized Sudoku board
+//         setSolvedBoard(null); // Reset solved board when new extraction happens
+//       } else {
+//         setError(response.data.message || 'Failed to recognize Sudoku from the image.');
+//       }
+//     } catch (err) {
+//       console.error('Error:', err);
+//       setError('Error extracting Sudoku from the image.');
+//     } finally {
+//       setLoading(false); 
+//     }
+//   };
+
+//   const handleSolve = async () => {
+//     if (!recognizedBoard) {
+//       setError('No recognized board to solve.');
+//       return;
+//     }
+
+//     setLoading(true); // Start loading
+//     try {
+//       const response = await solveSudoku(recognizedBoard); // Call API to solve Sudoku
+
+//       if (response && response.data && response.data.success) {
+//         setSolvedBoard(response.data.solved_board); // Update solved board
+//       } else {
+//         setError(response.data.message || 'Sudoku puzzle could not be solved.');
+//       }
+//     } catch (err) {
+//       console.error('Error solving Sudoku:', err);
+//       setError('Error solving the Sudoku puzzle.');
+//     } finally {
+//       setLoading(false); // Stop loading
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h1>Sudoku Solver</h1>
+//       <form onSubmit={handleSubmit}>
+//         <input 
+//           type="file" 
+//           accept="image/png, image/jpeg" 
+//           onChange={handleImageUpload} 
+//         />
+//         <button type="submit" disabled={!image || loading}>Extract Sudoku</button>
+//       </form>
+
+
+//       {error && <p style={{ color: 'red' }}>{error}</p>}
+
+  
+//       {recognizedBoard && (
+//         <div>
+//           <h2>Recognized Sudoku Board</h2>
+//           <pre>{JSON.stringify(recognizedBoard, null, 2)}</pre>
+//           <button onClick={handleSolve} disabled={loading}>Solve Sudoku</button>
+//         </div>
+//       )}
+
+//       {solvedBoard && (
+//         <div>
+//           <h2>Solved Sudoku Board</h2>
+//           <pre>{JSON.stringify(solvedBoard, null, 2)}</pre>
+//         </div>
+//       )}
+
+//       {loading && <p>Loading...</p>}
+//     </div>
+//   );
+// };
+
+// export default SudokuSolver;
+
+import React, { useState } from 'react';
+import { Button, Grid, Typography, TextField, CircularProgress } from '@mui/material';
+import { extract, solve } from './api/Sudoku-ws'; // Ensure API functions are imported
+
+const SudokuSolver = () => {
+  const [image, setImage] = useState(null);
   const [recognizedBoard, setRecognizedBoard] = useState(null);
+  const [solvedBoard, setSolvedBoard] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Loading state
+
+  // Handle image upload and convert to base64
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result); // Base64 encoded image
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle Sudoku extraction
+  const handleExtractSudoku = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await extract(image);
+      if (response.success) {
+        setRecognizedBoard(response.recognized_board);
+        setSolvedBoard(null); 
+      } else {
+        setError('Error extracting Sudoku board');
+      }
+    } catch (error) {
+      setError('Error extracting Sudoku board');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Sudoku solving
+  const handleSolveSudoku = async () => {
+    if (recognizedBoard) {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await solve(recognizedBoard);
+        if (response.success) {
+          setSolvedBoard(response.solved_board);
+        } else {
+          setError('Could not solve the Sudoku puzzle');
+        }
+      } catch (error) {
+        setError('Error solving Sudoku puzzle');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   return (
-    <div>
-      <h1>Sudoku Extractor & Solver</h1>
-      <SudokuExtractor onExtract={setRecognizedBoard} />
-      {recognizedBoard && <SudokuSolver recognizedBoard={recognizedBoard} />}
-    </div>
+    <Grid container spacing={2} direction="column" alignItems="center">
+      <Grid item>
+        <Typography variant="h4">Sudoku Solver</Typography>
+      </Grid>
+
+      <Grid item>
+        <input
+          accept="image/*"
+          type="file"
+          onChange={handleImageChange}
+          style={{ display: 'none' }}
+          id="upload-image"
+        />
+        <label htmlFor="upload-image">
+          <Button variant="contained" component="span">
+            Upload Sudoku Image
+          </Button>
+        </label>
+      </Grid>
+
+      {image && (
+        <Grid item>
+          <img src={image} alt="Uploaded Sudoku" style={{ maxWidth: '300px', marginTop: '10px' }} />
+        </Grid>
+      )}
+
+      <Grid item>
+        <Button variant="contained" color="primary" onClick={handleExtractSudoku} disabled={!image || loading}>
+          {loading ? <CircularProgress size={24} /> : 'Extract Sudoku'}
+        </Button>
+      </Grid>
+
+      {recognizedBoard && (
+        <>
+          <Grid item>
+            <Typography variant="h6">Recognized Sudoku Board:</Typography>
+            <pre>{JSON.stringify(recognizedBoard, null, 2)}</pre>
+          </Grid>
+
+          <Grid item>
+            <Button variant="contained" color="secondary" onClick={handleSolveSudoku} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : 'Solve Sudoku'}
+            </Button>
+          </Grid>
+        </>
+      )}
+
+      {solvedBoard && (
+        <Grid item>
+          <Typography variant="h6">Solved Sudoku Board:</Typography>
+          <pre>{JSON.stringify(solvedBoard, null, 2)}</pre>
+        </Grid>
+      )}
+
+      {error && (
+        <Grid item>
+          <Typography color="error">{error}</Typography>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
-export default SudokuExtractorandSolver;
+export default SudokuSolver;
