@@ -95,5 +95,17 @@ export const drawerItems = [
       },
     ],
   },
+  {
+    id: 7,
+    label: "Download Emails",
+    icon: <GridOnIcon />,
+    path: "/downloademails-csv",
+  },
+  {
+    id: 8,
+    label: "Image Text Extractor",
+    icon: <GridOnIcon />,
+    path: "/image-text-extractor",
+  },
 ];
 

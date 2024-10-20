@@ -12,6 +12,9 @@ import QrCodeDecoder from './QrcodeGenerator/qrDecoder'
 import QrCodeGenerator from './QrcodeGenerator/qrGenerator';
 import ImageToBase64Converter from './base64Convertor/imageToBase64';
 import Base64Decoder from './base64Convertor/base64decoder';
+import DownloadEmails from './emailToCsv.jsx';
+import DownloadEmailsComponent from './emailToCsv.jsx';
+import ImageTextExtractor from './imageExtractor.jsx';
 
 const appBarHeight = 64;
 
@@ -51,6 +54,8 @@ function App() {
                 <Route path="/qr-decoder" element={<QrCodeDecoder /> }/>
                 <Route path="/image-base64" element={<ImageToBase64Converter/>}/>
                 <Route path="/image-base64-decoder" element={<Base64Decoder/>}/>
+                <Route path="/downloademails-csv" element={<DownloadEmailsComponent/>}/>
+                <Route path='/image-text-extractor' element={<ImageTextExtractor/>}/>
               </Routes>
             </Container>
           </Box>
