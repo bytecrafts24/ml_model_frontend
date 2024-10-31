@@ -15,6 +15,7 @@ import Base64Decoder from './base64Convertor/base64decoder';
 import DownloadEmails from './emailToCsv.jsx';
 import DownloadEmailsComponent from './emailToCsv.jsx';
 import ImageTextExtractor from './imageExtractor.jsx';
+import MicButton from './speechCommand/Microphone.jsx';
 
 const appBarHeight = 64;
 
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/downloademails-csv" element={<DownloadEmailsComponent/>}/>
                 <Route path='/image-text-extractor' element={<ImageTextExtractor/>}/>
               </Routes>
+              <MicButton />
             </Container>
           </Box>
         </Box>

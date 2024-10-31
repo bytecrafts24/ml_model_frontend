@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -10,19 +10,29 @@ import {
   Alert,
   Container,
 } from "@mui/material";
+import { useLocation } from "react-router-dom";
 import { getMovieRecommendations } from "./api/ImdbRecommender-ws";
 
 const MovieRecommender = () => {
+  const location = useLocation();
   const [movieTitle, setMovieTitle] = useState("");
   const [recommendations, setRecommendations] = useState([]);
   const [error, setError] = useState("");
+
+  // Use effect to populate the text field if movie title is passed via state
+  useEffect(() => {
+    if (location.state?.movieName) {
+      setMovieTitle(location.state.movieName);
+      fetchRecommendations(location.state.movieName);
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     setMovieTitle(e.target.value);
   };
 
-  const fetchRecommendations = async () => {
-    getMovieRecommendations(movieTitle)
+  const fetchRecommendations = async (title = movieTitle) => {
+    getMovieRecommendations(title)
       .then((res) => {
         setRecommendations(res.data.recommendations);
         setError("");
@@ -49,11 +59,7 @@ const MovieRecommender = () => {
           Movie Recommender
         </Typography>
         <form onSubmit={handleSubmit}>
-          <Box
-            display="flex"
-            flexDirection={{ xs: "column", md: "row" }}
-            mb={2}
-          >
+          <Box display="flex" flexDirection={{ xs: "column", md: "row" }} mb={2}>
             <Box flexGrow={1} mr={{ md: 2 }}>
               <TextField
                 label="Enter movie title"
@@ -81,7 +87,6 @@ const MovieRecommender = () => {
           <Box mt={3}>
             <Typography variant="h6" component="h2">
               {recommendations.split("Did you mean one of these?")[0]}{" "}
-              {/* Show error message */}
             </Typography>
             {recommendations.includes("Did you mean one of these?") && (
               <Typography variant="body1" component="p">
@@ -98,7 +103,6 @@ const MovieRecommender = () => {
             )}
           </Box>
         ) : (
-          // Display the list of recommendations if it's an array
           recommendations?.length > 0 && (
             <Box mt={3}>
               <Typography variant="h6" component="h2">
@@ -120,4 +124,3 @@ const MovieRecommender = () => {
 };
 
 export default MovieRecommender;
-
