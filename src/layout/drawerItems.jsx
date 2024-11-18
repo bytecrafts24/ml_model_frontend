@@ -30,6 +30,18 @@ export const drawerItems = [
         icon: <ImageIcon />,
         path: "/pgn-to-csv",
       },
+      {
+        id: 1.4,
+        label: "PDF to Word",
+        icon: <PictureAsPdfIcon />,
+        path: "/pdf-to-word",
+      },
+      {
+        id: 1.5,
+        label: "Word to PDF",
+        icon: <PictureAsPdfIcon />,
+        path: "/word-to-pdf",
+      },
     ],
   },
   {
@@ -42,6 +54,12 @@ export const drawerItems = [
         label: "PGN",
         icon: <PictureAsPdfIcon />,
         path: "/pgn",
+      },
+      {
+        id: 2.2,
+        label: "PDF",
+        icon: <PictureAsPdfIcon />,
+        path: "/pdf",
       },
     ],
   },

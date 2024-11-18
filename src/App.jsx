@@ -16,6 +16,9 @@ import DownloadEmails from './emailToCsv.jsx';
 import DownloadEmailsComponent from './emailToCsv.jsx';
 import ImageTextExtractor from './imageExtractor.jsx';
 import MicButton from './speechCommand/Microphone.jsx';
+import PdfMerger from './merger/Pdf.jsx';
+import PdfToWordConverter from './converters/PdfToWord.js';
+import WordToPdfConverter from './converters/WordToPdf.js';
 
 const appBarHeight = 64;
 
@@ -46,9 +49,12 @@ function App() {
             <Container maxWidth="lg">
               <Routes>
                 <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
+                <Route path="/pdf-to-word" element={<PdfToWordConverter />} />
+                <Route path="/word-to-pdf" element={<WordToPdfConverter />} />
                 <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
                 <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
                 <Route path="/pgn" element={<PgnMerger/>} />
+                <Route path="/pdf" element={<PdfMerger/>} />
                 <Route path="/movie-recommender" element={<MovieRecommender/> }/>
                 <Route path="/sudoku-solver" element={<SudokuSolver/> }/>
                 <Route path="/qr-generator" element={<QrCodeGenerator /> }/>
