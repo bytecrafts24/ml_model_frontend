@@ -1,113 +1,149 @@
- 
-   import React, { useState } from "react";
-   import { Button, CircularProgress, Typography } from "@mui/material";
-   import { saveAs } from "file-saver";
-   import { Document, Packer, Paragraph } from "docx";
-   import * as pdfjsLib from "pdfjs-dist/webpack";
-   import { GlobalWorkerOptions } from "pdfjs-dist";
+import React, { useState } from "react";
+import { Button, CircularProgress, Typography, Box } from "@mui/material";
+import { saveAs } from "file-saver";
+import * as pdfjsLib from "pdfjs-dist/webpack";
+import { GlobalWorkerOptions } from "pdfjs-dist";
 
-   GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
 
-   const PdfToWordConverter = () => {
-     const [pdfFile, setPdfFile] = useState(null);
-     const [fileName, setFileName] = useState("No file chosen");
-     const [loading, setLoading] = useState(false);
+const PdfToWordConverter = () => {
+  const [pdfFile, setPdfFile] = useState(null);
+  const [fileName, setFileName] = useState("No file chosen");
+  const [loading, setLoading] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
-     const handleFileChange = (event) => {
-       const file = event.target.files[0];
-       if (file) {
-         console.log("Selected file:", file);
-         setFileName(file.name);
-         setPdfFile(file);
-       }
-     };
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      setPdfFile(file);
+    }
+  };
 
-     const convertPdfToWord = async () => {
-       if (!pdfFile) {
-         console.log("No PDF file selected.");
-         return;
-       }
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      setFileName(file.name);
+      setPdfFile(file);
+    }
+  };
 
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
 
-       if (pdfFile.type !== "application/pdf") {
-         console.error("Selected file is not a PDF.");
-         return;
-       }
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
 
-       try {
-         setLoading(true);
-         const url = URL.createObjectURL(pdfFile);
-         const loadingTask = pdfjsLib.getDocument(url);
-         
-         loadingTask.promise.then(
-           async (pdf) => {
-             console.log("PDF loaded:", pdf);
-             const textArray = [];
-             for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-               const page = await pdf.getPage(pageNumber);
-               const textContent = await page.getTextContent();
-               const pageText = textContent.items
-                 .map((item) => item.str)
-                 .join(" ");
-               textArray.push(pageText);
-             }
+  const convertPdfToWord = async () => {
+    if (!pdfFile) {
+      alert("No PDF file selected.");
+      return;
+    }
 
+    if (pdfFile.type !== "application/pdf") {
+      alert("Selected file is not a PDF.");
+      return;
+    }
 
-             const doc = new Document({
-               sections: [{
-                 properties: {},
-                 children: textArray.map((text, index) => [
-                   new Paragraph({
-                     text: `Page ${index + 1}`,
-                     heading: "Heading2",
-                   }),
-                   new Paragraph(text),
-                 ]).flat(),
-               }],
-             });
+    try {
+      setLoading(true);
+      const pdfData = await pdfjsLib.getDocument(pdfFile).promise;
+      const textContent = await Promise.all(
+        Array.from({ length: pdfData.numPages }, (_, i) =>
+          pdfData.getPage(i + 1).then((page) => page.getTextContent())
+        )
+      );
 
-             const wordBlob = await Packer.toBlob(doc);
-             saveAs(wordBlob, `${fileName.replace(".pdf", "")}.docx`);
-           },
-           (error) => {
-             console.error("Error loading PDF:", error);
-           }
-         );
-       } catch (error) {
-         console.error("Error during conversion:", error);
-       } finally {
-         setLoading(false);
-       }
-     };
+      const docContent = textContent
+        .map((page) => page.items.map((item) => item.str).join(" "))
+        .join("\n");
 
-     return (
-       <div style={{ textAlign: "center", width: "80%", margin: "auto" }}>
-         <h1>PDF to Word Converter</h1>
-         <input
-           type="file"
-           accept="application/pdf"
-           style={{ display: "none" }}
-           id="fileInput"
-           onChange={handleFileChange}
-         />
-         <label htmlFor="fileInput" style={{ cursor: "pointer", marginBottom: "20px" }}>
-           <Button variant="contained" component="span">
-             Select PDF
-           </Button>
-           <Typography variant="body2">{fileName}</Typography>
-         </label>
+      const blob = new Blob([docContent], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+    } catch (error) {
+      console.error("Error during conversion:", error);
+      alert("Error during conversion. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-         <Button
-           variant="contained"
-           color="primary"
-           onClick={convertPdfToWord}
-           disabled={!pdfFile || loading}
-         >
-           Convert to Word
-         </Button>
-         {loading && <CircularProgress style={{ marginTop: "20px" }} />}
-       </div>
-     );
-   };
+  return (
+    <Box 
+      sx={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh", // Full viewport height for vertical centering
+        // backgroundColor: "#000000" // Optional background color for contrast
+      }}
+    >
+      <Box 
+        sx={{ 
+          width: "100%", // Set width to 80%
+          maxWidth: "800px", // Optional: set a maximum width
+          textAlign: "center", 
+          padding: "50px", 
+          backgroundColor: "#f9f9f9", 
+          borderRadius: "8px", 
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)", 
+          border: isDragOver ? "2px dashed #3f51b5" : "2px dashed #ccc", // Change border color on drag over
+          transition: "border-color 0.3s ease" // Smooth transition for border color
+        }}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        <Typography variant="h4" sx={{ marginBottom: "40px" }}>PDF to Word Converter</Typography>
+        
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+          id="file-upload"
+          style={{ display: "none" }} // Hide the default input
+        />
+        <label htmlFor="file-upload">
+          <Button variant="outlined" component="span" sx={{ marginBottom: "20px", padding: "10px 20px" }}>
+            {fileName !== "No file chosen" ? fileName : "Select PDF File"}
+          </Button>
+        </label>
 
-   export default PdfToWordConverter;
+        <Typography variant="body2" sx={{ marginBottom: "50px", color: "#888" }}>
+          {fileName === "No file chosen" ? "No file chosen. Drag and drop your file here or click to select." : ""}
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={convertPdfToWord}
+          disabled={loading || !pdfFile}
+          sx={{ marginBottom: "20px" }}
+        >
+          Convert to Word
+        </Button>
+
+        {loading && <CircularProgress sx={{ marginTop: "20px" }} />}
+        {downloadUrl && (
+          <Box sx={{ marginTop: "20px" }}>
+            <Typography variant="body1">Conversion complete!</Typography>
+            <a href={downloadUrl} download="converted.txt">
+              <Button variant="contained" color="secondary">
+                Download Word File
+              </Button>
+            </a>
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
+};
+
+export default PdfToWordConverter;

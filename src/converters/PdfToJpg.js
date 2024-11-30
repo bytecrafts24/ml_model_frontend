@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import JSZip from 'jszip'; 
 import { saveAs } from 'file-saver'; 
-import { Button, CircularProgress, Typography } from '@mui/material';
+import { Button, CircularProgress, Typography, Box } from '@mui/material';
 
 const PdfToJpgConverter = () => {
   const [pdfFile, setPdfFile] = useState(null); 
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null); 
-  const [images, setImages] = useState([]); 
   const [loading, setLoading] = useState(false); 
   const [fileName, setFileName] = useState('No file chosen');
   const [zipBlob, setZipBlob] = useState(null);  
+  const [isDragOver, setIsDragOver] = useState(false);
 
- 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -21,6 +20,27 @@ const PdfToJpgConverter = () => {
       const pdfUrl = URL.createObjectURL(file); 
       setPdfPreviewUrl(pdfUrl);
     }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      setFileName(file.name);
+      setPdfFile(file);  
+      const pdfUrl = URL.createObjectURL(file); 
+      setPdfPreviewUrl(pdfUrl);
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
   };
 
   const convertPdfToImages = async () => {
@@ -54,9 +74,7 @@ const PdfToJpgConverter = () => {
       zip.file(`page-${pageNumber}.jpg`, imgDataUrl.split(',')[1], { base64: true });
     }
 
-    const images = await Promise.all(imagePromises);
-    setImages(images);
-
+    await Promise.all(imagePromises);
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     setZipBlob(zipBlob);
     setLoading(false);
@@ -69,48 +87,98 @@ const PdfToJpgConverter = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', position: 'relative', width: '80%', margin: 'auto' }}>
-      <h1>PDF to JPG Converter</h1>
-      <input type="file" accept="application/pdf" style={{ display: 'none' }} id="fileInput" onChange={handleFileChange} />
-      <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', marginBottom: '20px', marginTop: '80px' }}>
-        <Button variant="contained" component="span">Select PDF</Button>
-        <Typography variant="body2">{fileName}</Typography>
-      </label>
-
-      {pdfPreviewUrl && (
-        <div>
-          <Typography variant="h6">PDF Preview:</Typography>
-          <iframe
-            src={pdfPreviewUrl}
-            title="PDF Preview"
-            width="80%"
-            height="500px"
-            style={{ marginBottom: '20px' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <Button variant="contained" color="primary" onClick={convertPdfToImages}>
-              Convert to JPG
-            </Button>
-          </div>
-
-        </div>
-      )}
-
-    
-      {loading && <CircularProgress />}
-
-      {!loading && images.length > 0 && (
-        <div>
-          <Typography variant="h6" style={{ marginTop: '20px' }}>JPG Preview:</Typography>
-          {images.map((imgSrc, index) => (
-            <img key={index} src={imgSrc} alt={`Page ${index + 1}`} style={{ width: '50%', marginBottom: '10px' }} />
-          ))}
-          <Button variant="contained" color="primary" onClick={downloadZip} style={{ marginTop: '20px' }}>
-            Download All Pages as ZIP
+    <Box 
+      sx={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh", 
+        // backgroundColor: "#000000" 
+      }}
+    >
+      <Box 
+        sx={{ 
+          width: "100%", 
+          maxWidth: "800px", 
+          textAlign: "center", 
+          padding: "50px", 
+          backgroundColor: "#f9f9f9", 
+          borderRadius: "8px", 
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)", 
+          border: isDragOver ? "2px dashed #3f51b5" : "2px dashed #ccc", 
+          transition: "border-color 0.3s ease" 
+        }}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        <Typography variant="h4" sx={{ marginBottom: "40px" }}>PDF to JPG Converter</Typography>
+        
+        {/* <input 
+          type="file" 
+          accept="application/pdf" 
+          style={{ display: 'none' }} 
+          id="fileInput" 
+          onChange={handleFileChange} 
+        /> */}
+        {/* <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', marginBottom: '20px' }}>
+          <Button variant="contained" component="span">Select PDF</Button>
+          <Typography variant="body2">{fileName}</Typography>
+        </label> */}
+                <input
+          type="file"
+          accept=".pdf"
+          onChange={handleFileChange}
+          id="file-upload"
+          style={{ display: "none" }}
+        />
+                <label htmlFor="file-upload">
+          <Button variant="outlined" component="span" sx={{ marginBottom: "20px", padding: "10px 20px" }}>
+            {fileName !== "No file chosen" ? fileName : "Select PDF File"}
           </Button>
-        </div>
-      )}
-    </div>
+        </label>
+
+        <Typography variant="body2" sx={{ marginBottom: "20px", color: "#888" }}>
+          {fileName === "No file chosen" ? "No file chosen. Drag and drop your file here or click to select." : ""}
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={convertPdfToImages}
+          disabled={loading || !pdfPreviewUrl}
+          sx={{ marginBottom: "20px" }}
+        >
+          Convert to JPG
+        </Button>
+
+        {pdfPreviewUrl && (
+          <Box sx={{ marginBottom: "20px" }}>
+            <Typography variant="h6">PDF Preview:</Typography>
+            <iframe
+              src={pdfPreviewUrl}
+              title="PDF Preview"
+              width="80%"
+              height="300px" // Adjusted height
+              style={{ marginBottom: '20px' }}
+            />
+            {/* <Button variant="contained" color="primary" onClick={convertPdfToImages}>
+              Convert to JPG
+            </Button> */}
+          </Box>
+        )}
+
+        {loading && <CircularProgress sx={{ marginTop: "20px" }} />}
+        
+        {!loading && zipBlob && (
+          <Box sx={{ marginTop: "20px" }}>
+            <Typography variant="body1">Conversion complete!</Typography>
+            <Button variant="contained" color="primary" onClick={downloadZip} sx={{ marginTop: "20px" }}>
+              Download All Pages as ZIP
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 
