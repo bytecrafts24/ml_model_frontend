@@ -19,6 +19,8 @@ import MicButton from './speechCommand/Microphone.jsx';
 import PdfMerger from './merger/Pdf.jsx';
 import PdfToWordConverter from './converters/PdfToWord.js';
 import WordToPdfConverter from './converters/WordToPdf.js';
+import FileUpload from './converters/fileUpload.js';
+
 
 const appBarHeight = 64;
 
@@ -53,6 +55,7 @@ function App() {
                 <Route path="/word-to-pdf" element={<WordToPdfConverter />} />
                 <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
                 <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
+                <Route path="/stlconverter" element={<FileUpload />} />
                 <Route path="/pgn" element={<PgnMerger/>} />
                 <Route path="/pdf" element={<PdfMerger/>} />
                 <Route path="/movie-recommender" element={<MovieRecommender/> }/>

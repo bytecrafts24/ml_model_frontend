@@ -3,6 +3,7 @@ import { Button, CircularProgress, Typography, Box } from "@mui/material";
 import { saveAs } from "file-saver";
 import * as pdfjsLib from "pdfjs-dist/webpack";
 import { GlobalWorkerOptions } from "pdfjs-dist";
+import { Document, Packer, Paragraph } from "docx";
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
 
@@ -53,20 +54,31 @@ const PdfToWordConverter = () => {
 
     try {
       setLoading(true);
-      const pdfData = await pdfjsLib.getDocument(pdfFile).promise;
-      const textContent = await Promise.all(
-        Array.from({ length: pdfData.numPages }, (_, i) =>
-          pdfData.getPage(i + 1).then((page) => page.getTextContent())
-        )
-      );
+      const fileReader = new FileReader();
+      fileReader.onload = async () => {
+        const pdfData = await pdfjsLib.getDocument({ data: new Uint8Array(fileReader.result) }).promise;
+        const textContent = await Promise.all(
+          Array.from({ length: pdfData.numPages }, (_, i) =>
+            pdfData.getPage(i + 1).then((page) => page.getTextContent())
+          )
+        );
 
-      const docContent = textContent
-        .map((page) => page.items.map((item) => item.str).join(" "))
-        .join("\n");
+        const docContent = textContent
+          .map((page) => page.items.map((item) => item.str).join(" "))
+          .join("\n");
 
-      const blob = new Blob([docContent], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      setDownloadUrl(url);
+        const doc = new Document({
+          sections: [
+            {
+              children: docContent.split("\n").map((line) => new Paragraph(line)),
+            },
+          ],
+        });
+        const blob = await Packer.toBlob(doc);
+        saveAs(blob, "converted.docx");
+        setDownloadUrl(URL.createObjectURL(blob));
+      };
+      fileReader.readAsArrayBuffer(pdfFile);
     } catch (error) {
       console.error("Error during conversion:", error);
       alert("Error during conversion. Please try again.");
@@ -76,50 +88,45 @@ const PdfToWordConverter = () => {
   };
 
   return (
-    <Box 
-      sx={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "100vh", // Full viewport height for vertical centering
-        // backgroundColor: "#000000" // Optional background color for contrast
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
       }}
     >
-      <Box 
-        sx={{ 
-          width: "100%", // Set width to 80%
-          maxWidth: "800px", // Optional: set a maximum width
-          textAlign: "center", 
-          padding: "50px", 
-          backgroundColor: "#f9f9f9", 
-          borderRadius: "8px", 
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)", 
-          border: isDragOver ? "2px dashed #3f51b5" : "2px dashed #ccc", // Change border color on drag over
-          transition: "border-color 0.3s ease" // Smooth transition for border color
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "800px",
+          textAlign: "center",
+          padding: "50px",
+          backgroundColor: isDragOver ? "#e8f0fe" : "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          border: isDragOver ? "2px dashed #3f51b5" : "2px dashed #ccc",
+          transition: "border-color 0.3s ease",
         }}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <Typography variant="h4" sx={{ marginBottom: "40px" }}>PDF to Word Converter</Typography>
-        
+        <Typography variant="h4" sx={{ marginBottom: "40px" }}>
+          PDF to Word Converter
+        </Typography>
         <input
           type="file"
           accept="application/pdf"
           onChange={handleFileChange}
           id="file-upload"
-          style={{ display: "none" }} // Hide the default input
+          style={{ display: "none" }}
         />
         <label htmlFor="file-upload">
           <Button variant="outlined" component="span" sx={{ marginBottom: "20px", padding: "10px 20px" }}>
             {fileName !== "No file chosen" ? fileName : "Select PDF File"}
           </Button>
         </label>
-
-        <Typography variant="body2" sx={{ marginBottom: "50px", color: "#888" }}>
-          {fileName === "No file chosen" ? "No file chosen. Drag and drop your file here or click to select." : ""}
-        </Typography>
-
         <Button
           variant="contained"
           color="primary"
@@ -129,12 +136,11 @@ const PdfToWordConverter = () => {
         >
           Convert to Word
         </Button>
-
         {loading && <CircularProgress sx={{ marginTop: "20px" }} />}
         {downloadUrl && (
           <Box sx={{ marginTop: "20px" }}>
             <Typography variant="body1">Conversion complete!</Typography>
-            <a href={downloadUrl} download="converted.txt">
+            <a href={downloadUrl} download="converted.docx">
               <Button variant="contained" color="secondary">
                 Download Word File
               </Button>

@@ -42,6 +42,12 @@ export const drawerItems = [
         icon: <PictureAsPdfIcon />,
         path: "/word-to-pdf",
       },
+      {
+        id: 1.6,
+        label: "STL converter",
+        icon: <PictureAsPdfIcon />,
+        path: "/stlconverter",
+      },
     ],
   },
   {

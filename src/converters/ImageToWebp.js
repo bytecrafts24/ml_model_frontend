@@ -9,22 +9,19 @@ const ImageToWebPConverter = () => {
   const [isConverting, setIsConverting] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState("No file chosen");
-  const [loading, setLoading] = useState(false); 
 
   const handleFileChange = (event) => {
     const files = event.target.files;
-    const imageArray = Array.from(files).map((file) => URL.createObjectURL(file));
-    setImages(imageArray);
-    convertImagesToWebP(files);
+    setFileName(files.length > 1 ? `${files.length} files selected` : files[0]?.name || "No file chosen");
+    processFiles(files);
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragOver(false);
     const files = event.dataTransfer.files;
-    const imageArray = Array.from(files).map((file) => URL.createObjectURL(file));
-    setImages(imageArray);
-    convertImagesToWebP(files);
+    setFileName(files.length > 1 ? `${files.length} files selected` : files[0]?.name || "No file chosen");
+    processFiles(files);
   };
 
   const handleDragOver = (event) => {
@@ -36,31 +33,47 @@ const ImageToWebPConverter = () => {
     setIsDragOver(false);
   };
 
+  const processFiles = (files) => {
+    const imageArray = Array.from(files).map((file) => URL.createObjectURL(file));
+    setImages(imageArray);
+    convertImagesToWebP(files);
+  };
+
   const convertImagesToWebP = async (files) => {
     setIsConverting(true);
+    setConvertedImages([]); // Clear previous results
     const converted = [];
     for (const file of files) {
       const imageUrl = URL.createObjectURL(file);
-      const webPDataUrl = await convertImageToWebP(imageUrl);
-      converted.push({ name: file.name, webPDataUrl });
+      try {
+        const webPDataUrl = await convertImageToWebP(imageUrl);
+        converted.push({ name: file.name, webPDataUrl });
+      } catch (error) {
+        console.error("Error converting image:", file.name, error);
+      }
     }
     setConvertedImages(converted);
     setIsConverting(false);
   };
 
   const convertImageToWebP = (imageUrl) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       img.src = imageUrl;
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        const webPDataUrl = canvas.toDataURL('image/webp');
-        resolve(webPDataUrl);
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const webPDataUrl = canvas.toDataURL('image/webp');
+          resolve(webPDataUrl);
+        } catch (error) {
+          reject(error);
+        }
       };
+      img.onerror = reject;
     });
   };
 
@@ -75,106 +88,71 @@ const ImageToWebPConverter = () => {
 
   const downloadAllAsZip = async () => {
     const zip = new JSZip();
-
     for (const image of convertedImages) {
       const response = await fetch(image.webPDataUrl);
       const blob = await response.blob();
       zip.file(image.name.replace(/\.(jpg|jpeg|png)$/i, '.webp'), blob);
     }
-
     zip.generateAsync({ type: 'blob' }).then((content) => {
       saveAs(content, 'images.zip');
     });
   };
 
   return (
-    <Box 
-      sx={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "100vh", 
-        // backgroundColor: "#000000" 
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        padding: "20px",
       }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
     >
-      <Box 
-        sx={{ 
-          width: "100%", 
-          maxWidth: "800px", 
-          textAlign: "center", 
-          padding: "50px", 
-          backgroundColor: "#f9f9f9", 
-          borderRadius: "8px", 
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)", 
-          border: isDragOver ? "2px dashed #3f51b5" : "2px dashed #ccc", 
-          transition: "border-color 0.3s ease" 
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "800px",
+          textAlign: "center",
+          padding: "50px",
+          backgroundColor: isDragOver ? "#e3f2fd" : "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          border: "2px dashed #ccc",
         }}
       >
-        <Typography variant="h4" sx={{ marginBottom: "40px" }}>Image to WebP Converter</Typography>
-{/*         
+        <Typography variant="h4" sx={{ marginBottom: "40px" }}>
+          Image to WebP Converter
+        </Typography>
         <input
           type="file"
           accept="image/jpeg, image/jpg, image/png"
-          multiple
-          style={{ display: 'none' }}
+          onChange={handleFileChange}
           id="fileInput"
-          onChange={handleFileChange}
-        />
-        <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block', marginBottom: '20px' }}>
-          <Button variant="contained" component="span">Select Images</Button>
-        </label> */}
-
-<input
-          type="file"
-          accept="image/jpeg, image/jpg, image/png"
-          onChange={handleFileChange}
-          id="file-upload"
+          multiple
           style={{ display: "none" }}
         />
-                <label htmlFor="fileInput">
-          <Button variant="outlined" component="span" sx={{ marginBottom: "20px", padding: "10px 20px" }}>
-            {fileName !== "No file chosen" ? fileName : "Select Webp File"}
+        <label htmlFor="fileInput">
+          <Button variant="contained" component="span" sx={{ marginBottom: "20px" }}>
+            Select Images
           </Button>
         </label>
-
         <Typography variant="body2" sx={{ marginBottom: "20px", color: "#888" }}>
-          {fileName === "No file chosen" ? "No file chosen. Drag and drop your file here or click to select." : ""}
+          {fileName}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={convertImageToWebP}
-          disabled={loading || !convertedImages}
-          sx={{ marginBottom: "20px" }}
-        >
-          Converted to WebP
-        </Button>
+
+        {isConverting && <CircularProgress sx={{ marginBottom: "20px" }} />}
 
         {images.length > 0 && (
-          <Box sx={{ marginBottom: "20px" }}>
-            <Typography variant="h6">Original Images:</Typography>
-            <Box sx={gridStyle}>
+          <Box>
+            <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+              Original Images:
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
               {images.map((imgSrc, index) => (
-                <Box key={index} sx={imageContainerStyle}>
-                  <img src={imgSrc} alt={`Original ${index}`} style={styledImage} />
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        )}
-
-        {convertedImages.length > 0 && (
-          <Box sx={{ marginBottom: "20px" }}>
-            <Typography variant="h6">Converted to WebP:</Typography>
-            <Box sx={gridStyle}>
-              {convertedImages.map((image, index) => (
-                <Box key={index} sx={imageContainerStyle}>
-                  <img src={image.webPDataUrl} alt={`WebP ${index}`} style={styledImage} />
-                  <Typography variant="body2">{image.name.replace(/\.(jpg|jpeg|png)$/i, '.webp')}</Typography>
-                </Box>
+                <img key={index} src={imgSrc} alt={`Original ${index}`} style={{ width: '100%', borderRadius: '8px' }} />
               ))}
             </Box>
           </Box>
@@ -182,45 +160,25 @@ const ImageToWebPConverter = () => {
 
         {convertedImages.length > 0 && (
           <Box>
-            <Button variant="contained" color="primary" onClick={downloadConvertedImages} sx={{ marginRight: '10px' }}>
+            <Typography variant="h6" sx={{ marginBottom: "10px" }}>
+              Converted to WebP:
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+              {convertedImages.map((image, index) => (
+                <img key={index} src={image.webPDataUrl} alt={`WebP ${index}`} style={{ width: '100%', borderRadius: '8px' }} />
+              ))}
+            </Box>
+            <Button variant="contained" color="primary" onClick={downloadConvertedImages} sx={{ marginTop: "20px", marginRight: "10px" }}>
               Download All as WebP
             </Button>
-            <Button variant="contained" color="secondary" onClick={downloadAllAsZip}>
+            <Button variant="contained" color="secondary" onClick={downloadAllAsZip} sx={{ marginTop: "20px" }}>
               Download All as ZIP
             </Button>
           </Box>
         )}
-
-        {isConverting && <CircularProgress sx={{ marginTop: "20px" }} />}
       </Box>
     </Box>
   );
 };
 
-const gridStyle = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, 1fr)',
-  gap: '20px',
-  marginBottom: '20px',
-};
-
-const styledImage = {
-  width: '100%',
-  height: 'auto',
-  borderRadius: '10px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-  border: '2px solid #ddd',
-  transition: 'transform 0.3s ease',
-  cursor: 'pointer',
-};
-
-const imageContainerStyle = {
-  textAlign: 'center',
-  padding: '10px',
-  backgroundColor: '#f9f9f9',
-  borderRadius: '12px',
-  transition: 'background-color 0.3s ease',
-};
-
 export default ImageToWebPConverter;
-
