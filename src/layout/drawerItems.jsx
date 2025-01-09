@@ -131,5 +131,11 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/image-text-extractor",
   },
+  {
+    id: 9,
+    label: "Web Scraper",
+    icon: <GridOnIcon />,
+    path: "/price-scraper",
+  },
 ];
 
