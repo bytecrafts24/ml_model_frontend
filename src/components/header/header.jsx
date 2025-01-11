@@ -45,13 +45,13 @@ const Navbar = () => {
 
   return (
     <div className="min-h-screen">
-      <nav className="bg-transparent px-8 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <nav className="px-8 py-4 bg-transparent">
+        <div className="flex items-center justify-between mx-auto max-w-7xl">
           {/* Logo */}
-          <div className="text-2xl font-bold z-10">Logo</div>
+          <div className="z-10 text-2xl font-bold">Logo</div>
 
           {/* Icons Container */}
-          <div className="flex items-center justify-center space-x-12 absolute left-1/2 -translate-x-1/2">
+          <div className="absolute flex items-center justify-center space-x-12 -translate-x-1/2 left-1/2">
             {orderedIcons.map((icon) => (
               <div
                 key={icon.name}
@@ -98,7 +98,7 @@ const Navbar = () => {
           </div>
 
           {/* Login Button */}
-          <button className="bg-gray-800 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition-colors z-10">
+          <button className="z-10 px-6 py-2 text-white transition-colors bg-gray-800 rounded-full hover:bg-gray-700">
             Login
           </button>
         </div>
@@ -107,7 +107,7 @@ const Navbar = () => {
       {/* Gradient Background */}
       {activeIcon && (
         <div
-          className="fixed inset-0 -z-10 transition-all duration-500"
+          className="fixed inset-0 transition-all duration-500 -z-10"
           style={{
             background: `radial-gradient(
               circle, 
