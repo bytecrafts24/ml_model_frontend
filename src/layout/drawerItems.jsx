@@ -137,5 +137,12 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/price-scraper",
   },
+  {
+  id: 10,
+    label: "Chat App",
+    icon: <GridOnIcon />,
+    path: "/chat-app",
+  },
+
 ];
 
