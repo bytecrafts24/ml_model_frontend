@@ -136,6 +136,9 @@ export const drawerItems = [
     label: "Web Scraper",
     icon: <GridOnIcon />,
     path: "/price-scraper",
+    label: "Canvas",
+    icon: <GridOnIcon />,
+    path: "/canvas",
   },
   {
   id: 10,
