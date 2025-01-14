@@ -22,7 +22,13 @@ import WordToPdfConverter from "./converters/WordToPdf.js";
 import FileUpload from "./converters/fileUpload.js";
 import Canvas from "./Canvas/Canvas.jsx";
 import VideoChat from "./Call/VideoChat.jsx";
-import ChatApp from "./chatApp.js";
+import ChatApp from "./chatApp.jsx";
+// import VideoCall from "./videocalls/videoCall.jsx";
+import Login from "./layout/auth/login.jsx";
+import Register from "./layout/auth/register.jsx";
+import Profile from "./layout/auth/profile.jsx";
+import ProtectedRoute from "./layout/auth/protectedRoutes.jsx";
+
 
 const appBarHeight = 64;
 const WS_URL = "ws://localhost:3000";
@@ -90,7 +96,10 @@ function App() {
                 <Route path="/video" element={<VideoChat />} />
                 <Route path="/video/:roomId" element={<VideoChat />} />
                 <Route path="/chat-app" element={<ChatApp />} />
+
+
               </Routes>
+
               <MicButton />
             </Container>
           </Box>

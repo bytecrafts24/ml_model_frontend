@@ -181,12 +181,11 @@
 
 // export default ChatApp;
 
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faTimes, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 
 const socket = io("ws://localhost:3000", {
@@ -197,6 +196,13 @@ const socket = io("ws://localhost:3000", {
   reconnectionDelay: 1000,
 });
 
+const configuration = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ]
+};
+
 const ChatApp = () => {
   const [status, setStatus] = useState("Connected");
   const [username, setUsername] = useState("");
@@ -204,11 +210,20 @@ const ChatApp = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [shareLink, setShareLink] = useState("");
-  const location = useLocation();
+  const [isJoined, setIsJoined] = useState(false);
+  const [stream, setStream] = useState(null);
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [callEnded, setCallEnded] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [peerConnections, setPeerConnections] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-//   const navigate = useNavigate();
 
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket.connected) {
@@ -220,64 +235,76 @@ const ChatApp = () => {
       setCurrentRoom(roomId);
     }
 
-    const handleConnect = () => {
-      setStatus("Connected");
-    };
+    socket.on("connect", () => setStatus("Connected"));
+    socket.on("disconnect", () => setStatus("Disconnected"));
+    socket.on("connect_error", () => setStatus("Error connecting"));
 
-    const handleDisconnect = () => {
-      setStatus("Disconnected");
-    };
-
-    const handleError = (error) => {
-      setStatus("Error connecting");
-    };
-
-    const handleSearch = () => {
-        setIsSearching(!isSearching);
-        setSearchQuery("");
-      };
-    
-      const handleClose = () => {
-        socket.disconnect();
-        setMessages([]);
-        setCurrentRoom("");
-        // navigate("/");
-      };
-    
-      const filteredMessages = isSearching && searchQuery
-        ? messages.filter(msg => 
-            msg.text.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : messages;
-    
-
-    const handleMessage = (data) => {
-      const messageId = `${data.username}-${Date.now()}`;
-      setMessages(prev => {
-        if (!prev.some(msg => msg.id === messageId)) {
-          return [...prev, { ...data, id: messageId, text: `${data.username}: ${data.message}` }];
-        }
-        return prev;
-      });
-    };
-    
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("connect_error", handleError);
-    socket.on("user_joined", (data) => {
-      const joinMessage = `${data.username} joined the room.`;
-      setMessages(prev => [...prev, { id: Date.now(), text: joinMessage, isSystem: true }]);
+    socket.on("receive_message", (data) => {
+      setMessages(prev => [...prev, { 
+        id: Date.now(),
+        text: `${data.username}: ${data.message}`,
+        isSent: data.username === username
+      }]);
     });
-    socket.on("receive_message", handleMessage);
+
+    socket.on("user_joined", (data) => {
+      setMessages(prev => [...prev, { 
+        id: Date.now(), 
+        text: `${data.username} joined the room.`,
+        isSystem: true 
+      }]);
+    });
+
+    socket.on("call_started", async ({ callerId }) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        });
+        setStream(stream);
+        myVideo.current.srcObject = stream;
+        
+        const pc = new RTCPeerConnection(configuration);
+        setPeerConnections(prev => ({ ...prev, [callerId]: pc }));
+
+        stream.getTracks().forEach(track => {
+          pc.addTrack(track, stream);
+        });
+
+        pc.ontrack = event => {
+          userVideo.current.srcObject = event.streams[0];
+        };
+
+        pc.onicecandidate = event => {
+          if (event.candidate) {
+            socket.emit("ice_candidate", {
+              roomId: currentRoom,
+              candidate: event.candidate
+            });
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit("offer", { roomId: currentRoom, offer });
+      } catch (error) {
+        console.error("Error handling call:", error);
+      }
+    });
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("connect_error", handleError);
-      socket.off("user_joined");
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      Object.values(peerConnections).forEach(pc => pc.close());
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("connect_error");
       socket.off("receive_message");
+      socket.off("user_joined");
+      socket.off("call_started");
     };
-  }, [location]);
+  }, [location, currentRoom, username, stream, peerConnections]);
 
   const createRoom = () => {
     const newRoomId = Math.random().toString(36).substring(7);
@@ -292,19 +319,57 @@ const ChatApp = () => {
       return;
     }
     socket.emit("join_room", { username, roomId: currentRoom });
+    setIsJoined(true);
+    navigate(`/chat-app?room=${currentRoom}`, { replace: true });
+
   };
 
   const sendMessage = () => {
-    if (!message.trim()) return;
-    const messageData = {
-      roomId: currentRoom,
-      username,
-      message: message.trim(),
-      id: Date.now()
-    };
-    socket.emit("send_message", messageData);
-    setMessages(prev => [...prev, { ...messageData, text: `${username}: ${message}`, isSent: true }]);
+    if (!message) return;
+    socket.emit("send_message", { roomId: currentRoom, message });
     setMessage("");
+  };
+
+  const startCall = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+      setStream(stream);
+      myVideo.current.srcObject = stream;
+      socket.emit("start_call", { roomId: currentRoom });
+    } catch (error) {
+      console.error("Error starting call:", error);
+    }
+  };
+
+  const toggleVideo = () => {
+    if (stream) {
+      stream.getVideoTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      setIsVideoOff(!isVideoOff);
+    }
+  };
+
+  const toggleMute = () => {
+    if (stream) {
+      stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const endCall = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    Object.values(peerConnections).forEach(pc => pc.close());
+    setPeerConnections({});
+    setCallEnded(true);
+    setCallAccepted(false);
+    setStream(null);
+    socket.emit("end_call", { roomId: currentRoom });
   };
 
   return (
@@ -312,6 +377,13 @@ const ChatApp = () => {
       <div className={`p-4 mb-4 text-white ${status === "Connected" ? "bg-green-500" : "bg-red-500"}`}>
         {status}
       </div>
+
+            {currentRoom && (
+        <div className="mb-4 p-3 bg-gray-100 rounded-lg">
+          <span className="font-semibold">Room: </span>
+          <span>{currentRoom}</span>
+        </div>
+      )}
 
       {!currentRoom && (
         <div className="mb-4">
@@ -333,21 +405,24 @@ const ChatApp = () => {
         </div>
       )}
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Your name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 rounded mr-2"
-        />
-        <button onClick={joinRoom} className="bg-green-500 text-white px-4 py-2 rounded">
-          Join Chat
-        </button>
-      </div>
+      {currentRoom && !isJoined && (
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Your name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="border p-2 rounded mr-2"
+          />
+          <button onClick={joinRoom} className="bg-green-500 text-white px-4 py-2 rounded">
+            Join Chat
+          </button>
+        </div>
+      )}
 
-      {currentRoom && (
+      {currentRoom && isJoined && (
         <div className="bg-white rounded-lg shadow-lg">
+                  {/* <div className="bg-white rounded-lg shadow-lg"> */}
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
@@ -361,16 +436,83 @@ const ChatApp = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-            <button className="text-gray-500 hover:text-gray-700">
-  <FontAwesomeIcon icon={faSearch} />
-</button>
-<button className="text-gray-500 hover:text-gray-700">
-  <FontAwesomeIcon icon={faTimes} />
-</button>
+              <button 
+                onClick={() => setIsSearching(!isSearching)} 
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FontAwesomeIcon icon={faSearch} />
+              </button>
+              <button 
+                onClick={() => {
+                  socket.disconnect();
+                  setMessages([]);
+                  setCurrentRoom("");
+                  setIsJoined(false);
+                  setShareLink("");
+                  navigate("/chat-app", { replace: true });
+                  ;
+                }} 
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+          </div>
 
-      </div>
-    </div>
+          {isSearching && (
+            <div className="p-4 border-b">
+              <input
+                type="text"
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+          <div className="flex justify-center gap-4 p-4 border-b">
+            <video
+              playsInline
+              muted
+              ref={myVideo}
+              autoPlay
+              className="w-1/2 max-w-[300px] rounded"
+              style={{ display: stream ? 'block' : 'none' }}
+            />
+            <video
+              playsInline
+              ref={userVideo}
+              autoPlay
+              className="w-1/2 max-w-[300px] rounded"
+              style={{ display: callAccepted && !callEnded ? 'block' : 'none' }}
+            />
+          </div>
 
+          <div className="flex justify-center gap-4 p-4">
+            {!stream ? (
+              <button onClick={startCall} className="bg-green-500 text-white px-4 py-2 rounded">
+                Start Video Call
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={toggleVideo}
+                  className={`${isVideoOff ? 'bg-red-500' : 'bg-blue-500'} text-white px-4 py-2 rounded`}
+                >
+                  {isVideoOff ? 'Turn On Video' : 'Turn Off Video'}
+                </button>
+                <button
+                  onClick={toggleMute}
+                  className={`${isMuted ? 'bg-red-500' : 'bg-blue-500'} text-white px-4 py-2 rounded`}
+                >
+                  {isMuted ? 'Unmute' : 'Mute'}
+                </button>
+                <button onClick={endCall} className="bg-red-500 text-white px-4 py-2 rounded">
+                  End Call
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="h-[500px] overflow-y-auto p-4">
             {messages.map((msg) => (
@@ -391,17 +533,17 @@ const ChatApp = () => {
             <div className="flex items-center gap-3">
               <input
                 type="text"
-                placeholder="Type your message..."
+                placeholder="Type message..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                className="flex-1 outline-none"
+                className="flex-1 outline-none border p-2 rounded"
               />
               <button
                 onClick={sendMessage}
-                className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
               >
-                <i className="fas fa-paper-plane"></i>
+                Send
               </button>
             </div>
           </div>

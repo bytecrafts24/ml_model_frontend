@@ -146,6 +146,30 @@ export const drawerItems = [
     icon: <GridOnIcon />,
     path: "/chat-app",
   },
+  // {
+  //   id: 11,
+  //     label: "Video Call",
+  //     icon: <GridOnIcon />,
+  //     path: "/video-call",
+  // },
+  // {
+  //   id: 12,
+  //     label: "Login",
+  //     icon: <GridOnIcon />,
+  //     path: "/login",
+  //   },
+  {
+    id: 13,
+      label: "Register",
+      icon: <GridOnIcon />,
+      path: "/register",
+    },
+    // {
+    //   id: 14,
+    //     label: "Profile",
+    //     icon: <GridOnIcon />,
+    //     path: "/profile",
+    // },
 
 ];
 
