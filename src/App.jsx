@@ -28,6 +28,7 @@ import Login from "./layout/auth/login.jsx";
 import Register from "./layout/auth/register.jsx";
 import Profile from "./layout/auth/profile.jsx";
 import ProtectedRoute from "./layout/auth/protectedRoutes.jsx";
+import ImageToSTL from "./img_to_stl.jsx";
 
 
 const appBarHeight = 64;
@@ -96,8 +97,7 @@ function App() {
                 <Route path="/video" element={<VideoChat />} />
                 <Route path="/video/:roomId" element={<VideoChat />} />
                 <Route path="/chat-app" element={<ChatApp />} />
-
-
+                <Route path="/img-stl" element={<ImageToSTL />} />
               </Routes>
 
               <MicButton />
@@ -137,7 +137,7 @@ export default App;
 
 // const App = () => {
 //   return (
-//     <div className="min-h-screen bg-gray-100 text-gray-800">
+//     <div className="min-h-screen text-gray-800 bg-gray-100">
 //       <Navbar appTitle={data.appTitle} navLinks={data.navLinks} />
 //       <SearchBar />
 //       <Tools tools={data.tools} />

@@ -22,3 +22,18 @@ export const convertFile = (file) => {
     },
   });
 };
+
+export const convertToPng = async (fileData) => {
+  return API.request({
+    method: 'POST',
+    urlPath: '/conversion/png-stl',
+    body: {
+      base64Image: fileData.base64Image,
+      filename: fileData.filename
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    responseType: 'blob' // For binary response
+  });
+};
