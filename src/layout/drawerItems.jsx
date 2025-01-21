@@ -170,6 +170,12 @@ export const drawerItems = [
       icon: <GridOnIcon />,
       path: "/img-stl",
     },
+    {
+      id: 15,
+      label: "Img Generate",
+      icon: <GridOnIcon />,
+      path: "/img-generate",
+    },
     // {
     //   id: 14,
     //     label: "Profile",

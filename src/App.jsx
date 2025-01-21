@@ -29,6 +29,7 @@ import Register from "./layout/auth/register.jsx";
 import Profile from "./layout/auth/profile.jsx";
 import ProtectedRoute from "./layout/auth/protectedRoutes.jsx";
 import ImageToSTL from "./img_to_stl.jsx";
+import ImageGenerator from "./Imagegenerator.jsx";
 
 
 const appBarHeight = 64;
@@ -98,6 +99,7 @@ function App() {
                 <Route path="/video/:roomId" element={<VideoChat />} />
                 <Route path="/chat-app" element={<ChatApp />} />
                 <Route path="/img-stl" element={<ImageToSTL />} />
+                <Route path="/img-generate" element={<ImageGenerator />} />
               </Routes>
 
               <MicButton />
