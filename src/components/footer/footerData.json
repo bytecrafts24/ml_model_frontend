@@ -1,0 +1,23 @@
+{
+    "companyInfo": {
+      "name": "ByteCrafts",
+      "address": "Bytecrafts ,Taralabalu Badavane ,\nDavangere-577004,",
+      "email": "bytecrafts24@gmail.com",
+      "phone": "+91-6362718708"
+    },
+    "navigation": [
+      { "id": 1, "title": "Home", "path": "/" },
+      { "id": 2, "title": "Contact", "path": "/contact" }
+    ],
+    "products": [
+      { "id": 1, "title": "Converter", "path": "/converter" },
+      { "id": 2, "title": "Merger", "path": "/merger" },
+      { "id": 3, "title": "Tools", "path": "/tools" }
+    ],
+    "socialMedia": [
+      { "id": 1, "platform": "Twitter", "url": "#" },
+      { "id": 2, "platform": "Facebook", "url": "#" },
+      { "id": 3, "platform": "Instagram", "url": "#" }
+    ]
+  }
+  

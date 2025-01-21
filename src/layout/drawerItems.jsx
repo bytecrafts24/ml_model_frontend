@@ -136,6 +136,52 @@ export const drawerItems = [
     label: "Web Scraper",
     icon: <GridOnIcon />,
     path: "/price-scraper",
+    label: "Canvas",
+    icon: <GridOnIcon />,
+    path: "/canvas",
   },
+  {
+  id: 10,
+    label: "Chat App",
+    icon: <GridOnIcon />,
+    path: "/chat-app",
+  },
+  // {
+  //   id: 11,
+  //     label: "Video Call",
+  //     icon: <GridOnIcon />,
+  //     path: "/video-call",
+  // },
+  // {
+  //   id: 12,
+  //     label: "Login",
+  //     icon: <GridOnIcon />,
+  //     path: "/login",
+  //   },
+  {
+    id: 13,
+      label: "Register",
+      icon: <GridOnIcon />,
+      path: "/register",
+    },
+    {
+      id: 14,
+      label: "Img to STL",
+      icon: <GridOnIcon />,
+      path: "/img-stl",
+    },
+    {
+      id: 15,
+      label: "Img Generate",
+      icon: <GridOnIcon />,
+      path: "/img-generate",
+    },
+    // {
+    //   id: 14,
+    //     label: "Profile",
+    //     icon: <GridOnIcon />,
+    //     path: "/profile",
+    // },
+
 ];
 

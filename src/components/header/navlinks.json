@@ -1,0 +1,9 @@
+{
+    "logo": "ByteCrafts",
+    "menuItems": [
+      { "id": 1, "title": "Converter", "path": "/converter" },
+      { "id": 2, "title": "Merger", "path": "/merger" },
+      { "id": 3, "title": "Tools", "path": "/tools" }
+    ]
+  }
+  

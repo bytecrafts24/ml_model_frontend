@@ -5,7 +5,7 @@ export const HttpMethod = {
   };
   
   export const getBaseUrl = async () => {
-    //  return 'https://ml-models-backend.onrender.com/';
-     return 'http://localhost:3000'
+     return 'https://pb.bytecrafts.in/api';
+    //  return 'http://localhost:3000/api'
   };
   

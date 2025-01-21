@@ -1,0 +1,29 @@
+{
+    "cards": [
+      {
+        "id": 1,
+        "title": "PDF to JPG",
+        "icon": "PdfIcon",
+        "description": "Convert PDF to JPG"
+      },
+      {
+        "id": 2,
+        "title": "Image to WebP",
+        "icon": "ImageIcon",
+        "description": "Convert Image to WebP"
+      },
+      {
+        "id": 3,
+        "title": "PGN to CSV",
+        "icon": "PngIcon",
+        "description": "Convert PGN to CSV"
+      },
+      {
+        "id": 4,
+        "title": "PDF to Word",
+        "icon": "PdfIcon",
+        "description": "Convert PDF to Word"
+      }
+    ]
+  }
+  
