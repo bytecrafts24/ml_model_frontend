@@ -28,124 +28,102 @@ import Login from "./layout/auth/login.jsx";
 import Register from "./layout/auth/register.jsx";
 import Profile from "./layout/auth/profile.jsx";
 import ProtectedRoute from "./layout/auth/protectedRoutes.jsx";
+import AuthLayout from "./layout/auth/AuthLayout.jsx";
 import ImageToSTL from "./img_to_stl.jsx";
 import ImageGenerator from "./Imagegenerator.jsx";
-
+import Clarity from "./Clarity.jsx";
+import { useState, useEffect } from "react";
 
 const appBarHeight = 64;
 const WS_URL = "ws://localhost:3000";
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    // Check authentication status
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token);
+    
+    // Add listener for authentication changes
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('authToken');
+      setIsAuthenticated(!!token);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  
   return (
     <Router>
-      <Box display="flex" minHeight="100vh" flexDirection="column">
-        <Box component="header"></Box>
+      <AuthLayout>
+        <Box display="flex" minHeight="100vh" flexDirection="column">
+          <Box component="header"></Box>
 
-        <Box display="flex" flexGrow={1}>
-          <Sidebar />
+          <Box display="flex" flexGrow={1}>
+            {/* Only show sidebar if authenticated */}
+            {isAuthenticated && <Sidebar />}
 
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              padding: 2,
-              overflow: "hidden",
-              backgroundColor: "#f0f0f0",
-              marginTop: `${appBarHeight}px`,
-              width: { xs: "100%", sm: "calc(100% - 240px)" },
-            }}
-          >
-            <Container maxWidth="lg">
-              <Routes>
-                <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
-                <Route path="/pdf-to-word" element={<PdfToWordConverter />} />
-                <Route path="/word-to-pdf" element={<WordToPdfConverter />} />
-                <Route
-                  path="/image-to-webp"
-                  element={<ImageToWebPConverter />}
-                />
-                <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
-                <Route path="/stlconverter" element={<FileUpload />} />
-                <Route path="/pgn" element={<PgnMerger />} />
-                <Route path="/pdf" element={<PdfMerger />} />
-                <Route
-                  path="/movie-recommender"
-                  element={<MovieRecommender />}
-                />
-                <Route path="/sudoku-solver" element={<SudokuSolver />} />
-                <Route path="/qr-generator" element={<QrCodeGenerator />} />
-                <Route path="/qr-decoder" element={<QrCodeDecoder />} />
-                <Route
-                  path="/image-base64"
-                  element={<ImageToBase64Converter />}
-                />
-                <Route
-                  path="/image-base64-decoder"
-                  element={<Base64Decoder />}
-                />
-                <Route
-                  path="/downloademails-csv"
-                  element={<DownloadEmailsComponent />}
-                />
-                <Route
-                  path="/image-text-extractor"
-                  element={<ImageTextExtractor />}
-                />
-                <Route path="/canvas" element={<Canvas wsUrl={WS_URL} />} />
-                <Route
-                  path="/canvas/:sessionId"
-                  element={<Canvas wsUrl={WS_URL} />}
-                />
-                <Route path="/video" element={<VideoChat />} />
-                <Route path="/video/:roomId" element={<VideoChat />} />
-                <Route path="/chat-app" element={<ChatApp />} />
-                <Route path="/img-stl" element={<ImageToSTL />} />
-                <Route path="/img-generate" element={<ImageGenerator />} />
-              </Routes>
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                padding: 2,
+                overflow: "hidden",
+                backgroundColor: "#f0f0f0",
+                marginTop: `${appBarHeight}px`,
+                width: isAuthenticated ? { xs: "100%", sm: "calc(100% - 240px)" } : "100%",
+              }}
+            >
+              <Container maxWidth="lg">
+                <Routes>
+                  {/* Auth Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/profile" element={<Profile />} />
+                  
+                  {/* All other routes are automatically protected by AuthLayout */}
+                  <Route path="/pdf-to-jpg" element={<PdfToJpgConverter />} />
+                  <Route path="/pdf-to-word" element={<PdfToWordConverter />} />
+                  <Route path="/word-to-pdf" element={<WordToPdfConverter />} />
+                  <Route path="/image-to-webp" element={<ImageToWebPConverter />} />
+                  <Route path="/pgn-to-csv" element={<PgnToCsvConverter />} />
+                  <Route path="/stlconverter" element={<FileUpload />} />
+                  <Route path="/pgn" element={<PgnMerger />} />
+                  <Route path="/pdf" element={<PdfMerger />} />
+                  <Route path="/movie-recommender" element={<MovieRecommender />} />
+                  <Route path="/sudoku-solver" element={<SudokuSolver />} />
+                  <Route path="/qr-generator" element={<QrCodeGenerator />} />
+                  <Route path="/qr-decoder" element={<QrCodeDecoder />} />
+                  <Route path="/image-base64" element={<ImageToBase64Converter />} />
+                  <Route path="/image-base64-decoder" element={<Base64Decoder />} />
+                  <Route path="/downloademails-csv" element={<DownloadEmailsComponent />} />
+                  <Route path="/image-text-extractor" element={<ImageTextExtractor />} />
+                  <Route path="/canvas" element={<Canvas wsUrl={WS_URL} />} />
+                  <Route path="/canvas/:sessionId" element={<Canvas wsUrl={WS_URL} />} />
+                  <Route path="/video" element={<VideoChat />} />
+                  <Route path="/video/:roomId" element={<VideoChat />} />
+                  <Route path="/chat-app" element={<ChatApp />} />
+                  <Route path="/img-stl" element={<ImageToSTL />} />
+                  <Route path="/img-generate" element={<ImageGenerator />} />
+                  <Route path="/clarity" element={<Clarity />} />
+                  
+                  {/* Default route redirects to login through AuthLayout */}
+                  <Route path="/" element={<div>Welcome to ByteCrafts Dashboard</div>} />
+                </Routes>
 
-              <MicButton />
-            </Container>
+                {isAuthenticated && <MicButton />}
+              </Container>
+            </Box>
           </Box>
         </Box>
-      </Box>
+      </AuthLayout>
     </Router>
   );
 }
 
 export default App;
-
-
-// export default App;
-
-// import React from "react";
-// import Navbar from "./components/navbar.jsx";
-// import SearchBar from "./components/searchbar.jsx";
-// import Tools from "./components/tools.jsx";
-
-// const data = {
-//   appTitle: "ByteCrafts",
-//   navLinks: [
-//     { name: "Converter", href: "#" },
-//     { name: "Merger", href: "#" },
-//     { name: "Tools", href: "#" },
-//   ],
-//   tools: [
-//     { name: "QR Generator", description: "QR Code generator" },
-//     { name: "QR Decoder", description: "QR Code Decoder" },
-//     { name: "IMDB Recommender", description: "IMDB Recommender" },
-//     { name: "Sudoku Solver", description: "QR Code Decoder" },
-//     { name: "Image Text Extractor", description: "Image Text Extractor" },
-//   ],
-// };
-
-// const App = () => {
-//   return (
-//     <div className="min-h-screen text-gray-800 bg-gray-100">
-//       <Navbar appTitle={data.appTitle} navLinks={data.navLinks} />
-//       <SearchBar />
-//       <Tools tools={data.tools} />
-//     </div>
-//   );
-// };
-
-// export default App;
 

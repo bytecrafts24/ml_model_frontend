@@ -15,15 +15,33 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
+      // Check for admin user first (our hardcoded credentials)
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser.email === 'bytecrafts24@gmail.com') {
+          setUser(parsedUser);
+          return;
+        }
+      }
+      
+      // If not admin, get profile from API
       const response = await getProfile();
       setUser(response.user);
     } catch (error) {
+      console.error('Profile fetch error:', error);
       navigate('/login');
     }
   };
 
   const handleSetup2FA = async () => {
     try {
+      // Don't allow 2FA setup for hardcoded admin
+      if (user && user.email === 'bytecrafts24@gmail.com') {
+        setError('2FA is not available for admin account');
+        return;
+      }
+      
       const response = await setup2FA();
       setQrCode(response.qrCode);
     } catch (error) {
@@ -54,13 +72,13 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="min-h-screen px-4 py-12 bg-gray-100">
+      <div className="max-w-md mx-auto overflow-hidden bg-white rounded-lg shadow-lg">
         <div className="px-6 py-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Profile</h2>
+          <h2 className="mb-6 text-2xl font-bold text-gray-800">Profile</h2>
           
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
               {error}
             </div>
           )}
@@ -74,14 +92,14 @@ const Profile = () => {
               {!user.twoFactorEnabled ? (
                 <button
                   onClick={handleSetup2FA}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  className="w-full px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
                 >
                   Setup 2FA
                 </button>
               ) : (
                 <button
                   onClick={handleDisable2FA}
-                  className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700"
+                  className="w-full px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
                 >
                   Disable 2FA
                 </button>
@@ -98,11 +116,11 @@ const Profile = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   placeholder="Enter OTP"
-                  className="w-full px-3 py-2 border border-gray-300 rounded mb-4"
+                  className="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
                 />
                 <button
                   type="submit"
-                  className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+                  className="w-full px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
                 >
                   Verify OTP
                 </button>

@@ -12,7 +12,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
+      // Check for hard-coded credentials from environment variables
+      const adminEmail = process.env.REACT_APP_ADMIN_EMAIL;
+      const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD;
+
+      if (email === adminEmail && password === adminPassword) {
+        // Create a mock token for the admin user
+        const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+        localStorage.setItem('authToken', mockToken);
+        localStorage.setItem('user', JSON.stringify({
+          email: adminEmail,
+          role: 'admin',
+          name: 'ByteCrafts Admin'
+        }));
+        navigate('/'); // Navigate to home instead of profile
+        return;
+      }
+      
+      // If not using env credentials, proceed with API login
       const credentials = { email, password };
       const response = await login(credentials);
       
@@ -20,7 +39,7 @@ const Login = () => {
         setIs2FARequired(true);
       } else {
         localStorage.setItem('authToken', response.user.authToken);
-        navigate('/profile');
+        navigate('/'); // Navigate to home instead of profile
       }
     } catch (error) {
       setError(error.message || 'Login failed');
@@ -34,74 +53,89 @@ const Login = () => {
       const response = await loginWith2FA(credentials);
       
       localStorage.setItem('authToken', response.user.authToken);
-      navigate('/profile');
+      navigate('/'); // Navigate to home instead of profile
     } catch (error) {
       setError(error.message || 'Invalid OTP');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
-          {is2FARequired ? '2FA Verification' : 'Login'}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold text-indigo-700">ByteCrafts</h1>
+        <p className="mt-2 text-gray-600">All-in-one tool suite for your digital needs</p>
+      </div>
+      
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-xl">
+        <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">
+          {is2FARequired ? '2FA Verification' : 'Sign In to Continue'}
         </h2>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded">
             {error}
           </div>
         )}
 
         {!is2FARequired ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-            >
-              Login
-            </button>
-          </form>
+          <>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block mb-2 text-sm font-bold text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="youremail@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-bold text-gray-700">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                Sign In
+              </button>
+            </form>
+            
+            
+          </>
         ) : (
           <form onSubmit={handle2FASubmit} className="space-y-6">
             <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">Enter OTP</label>
+              <label className="block mb-2 text-sm font-bold text-gray-700">Enter OTP</label>
               <input
                 type="text"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+              className="w-full px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Verify OTP
             </button>
           </form>
         )}
+      </div>
+      
+      <div className="mt-8 text-center text-gray-600">
+        <p>© {new Date().getFullYear()} ByteCrafts. All rights reserved.</p>
+        <p className="mt-1 text-sm">A secure platform with multiple tools for your needs.</p>
       </div>
     </div>
   );

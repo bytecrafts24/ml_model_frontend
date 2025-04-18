@@ -5,6 +5,7 @@ import MovieIcon from '@mui/icons-material/Movie';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import TransformIcon from '@mui/icons-material/Transform';
 import QrCodeIcon from '@mui/icons-material/QrCode';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 export const drawerItems = [
   {
@@ -141,7 +142,7 @@ export const drawerItems = [
     path: "/canvas",
   },
   {
-  id: 10,
+    id: 10,
     label: "Chat App",
     icon: <GridOnIcon />,
     path: "/chat-app",
@@ -160,28 +161,33 @@ export const drawerItems = [
   //   },
   {
     id: 13,
-      label: "Register",
-      icon: <GridOnIcon />,
-      path: "/register",
-    },
-    {
-      id: 14,
-      label: "Img to STL",
-      icon: <GridOnIcon />,
-      path: "/img-stl",
-    },
-    {
-      id: 15,
-      label: "Img Generate",
-      icon: <GridOnIcon />,
-      path: "/img-generate",
-    },
-    // {
-    //   id: 14,
-    //     label: "Profile",
-    //     icon: <GridOnIcon />,
-    //     path: "/profile",
-    // },
-
+    label: "Register",
+    icon: <GridOnIcon />,
+    path: "/register",
+  },
+  {
+    id: 14,
+    label: "Img to STL",
+    icon: <GridOnIcon />,
+    path: "/img-stl",
+  },
+  {
+    id: 15,
+    label: "Img Generate",
+    icon: <GridOnIcon />,
+    path: "/img-generate",
+  },
+  {
+    id: 16,
+    label: "Clarity",
+    icon: <TableChartIcon />,
+    path: "/clarity",
+  },
+  // {
+  //   id: 14,
+  //     label: "Profile",
+  //     icon: <GridOnIcon />,
+  //     path: "/profile",
+  // },
 ];
 
